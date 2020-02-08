@@ -19,14 +19,14 @@ class wordbook:
 
     def __init__(self,import_file,export_file="wordbook.csv"):
         super().__init__()
-        self.filters = "CC,CD,DT,EX,FW,IN,LS,MD,PDT,POS,PRP,PRP$,TO,UH,WDT,WP,WP$,WRB,.,:,(),!,?,{},&,%,$,#,``,','',VBZ,VBP,NNP"    #nltk filters
-        self.wfilters = "/\.<>{}[]*·\"-~=_0123456789"
+        self.filters = ['CC', 'CD', 'DT', 'EX', 'FW', 'IN', 'LS', 'MD', 'PDT', 'POS', 'PRP', 'PRP$', 'TO', 'UH', 'WDT', 'WP', 'WP$', 'WRB', '.', ':', '(', ')', '!', '?', '{}', '&', '%', '$', '#', '``', "'", "''", 'VBZ', 'VBP', 'NNP', ',', '|', '“']    #nltk filters
+        self.wfilters = "/\.<>{}[]%*·\"“”-~=•_0123456789"
         #NLTK
         self.lm = WordNetLemmatizer()
         #-------------
         self.outfile = export_file
         print("-----추출시작 : {imp}-----".format(imp=import_file))
-        self.parsed = self.parse(self.extract("ex.pdf"))
+        self.parsed = self.parse(self.extract(import_file))
         print("추출완료. : {imp}".format(imp=import_file))
         self.createw(self.parsed)
         self.out(self.wlist)
@@ -70,9 +70,9 @@ class wordbook:
             sys.stdout.write("\r단어추출시작 .... {lb} [{pt}%]".format(lb="".join(loading_bar),pt=int((i/max)*100)))
         print("\n단어추출완료!")
         self.wlist = {k: v for k, v in sorted(self.wlist.items(), key=lambda item: item[1],reverse=True)}
-        
-        print("번역작업 시작...")
         max = len(self.wlist)
+        print("추출된 단어수 : "+str(max))
+        print("번역작업 시작...")
         loading_bar = [" " for x in range(101)]
         for i,w in enumerate(self.wlist.keys()):
             self.wlist[w] = self.search(w)
@@ -103,7 +103,7 @@ class wordbook:
         dq = "https://suggest-bar.daum.net/suggest?mod=json&code=utf_in_out&enc=utf&id=language&cate=eng&q={q}"
         #print(self.r.cookies)
         res = json.loads(self.r.get(dq.format(q=q)).text)
-        return len(res["items"])>0 and res["items"][0].lstrip("kuek|") or False
+        return len(res["items"])>0 and "".join(res["items"][0].split("|")[1:]) or False
 
     
 
@@ -114,5 +114,5 @@ class wordbook:
 
 
 
-wordbook("ex.pdf")
+wordbook("tw.pdf","tangled.csv")
 #filter : CC,CD,DT,EX,FW,IN,LS,MD,PDT,POS,PRP,PRP$,TO,UH,WDT,WP,WP$,WRB
